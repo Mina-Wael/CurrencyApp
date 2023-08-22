@@ -13,9 +13,11 @@ import com.example.currencyapp.databinding.FragmentHomeBinding
 import com.example.currencyapp.utils.Constants.API_KEY
 import com.example.currencyapp.utils.Resource
 import com.example.currencyapp.utils.ResultState
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
+@AndroidEntryPoint
 class HomeFragment : Fragment() {
 
     private var _binding: FragmentHomeBinding? = null

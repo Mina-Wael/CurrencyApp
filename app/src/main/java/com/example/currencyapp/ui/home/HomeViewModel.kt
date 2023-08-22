@@ -7,12 +7,15 @@ import com.example.currencyapp.domain.pojo.SymbolsResponse
 import com.example.currencyapp.domain.repository.MainRepository
 import com.example.currencyapp.utils.Resource
 import com.example.currencyapp.utils.ResultState
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import javax.inject.Inject
 
-class HomeViewModel(private val repo: MainRepository) : ViewModel() {
+@HiltViewModel
+class HomeViewModel @Inject constructor(private val repo: MainRepository) : ViewModel() {
 
     private val _symbolsStateFlow: MutableStateFlow<ResultState<SymbolsResponse>> =
         MutableStateFlow(ResultState.Loading)

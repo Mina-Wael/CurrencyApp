@@ -8,9 +8,10 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import retrofit2.HttpException
 import java.io.IOException
+import javax.inject.Inject
 
 
-class MainRepositoryImpl(val api: CurrencyApi) : MainRepository {
+class MainRepositoryImpl @Inject constructor(val api: CurrencyApi) : MainRepository {
 
 
     override fun getSymbols(accessKey: String): Flow<Resource<SymbolsResponse>> = flow {

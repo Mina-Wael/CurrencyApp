@@ -1,5 +1,8 @@
 package com.example.currencyapp.di
 
+import android.app.Application
+import dagger.hilt.android.HiltAndroidApp
 
-class MainApp {
-}
+
+@HiltAndroidApp
+class MainApp : Application()
