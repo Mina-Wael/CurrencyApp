@@ -4,17 +4,23 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.example.currencyapp.databinding.FragmentHomeBinding
+import com.example.currencyapp.utils.Constants.API_KEY
+import com.example.currencyapp.utils.Resource
+import com.example.currencyapp.utils.ResultState
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 class HomeFragment : Fragment() {
 
     private var _binding: FragmentHomeBinding? = null
 
-    // This property is only valid between onCreateView and
-    // onDestroyView.
+    private val homeViewModel: HomeViewModel by viewModels()
     private val binding get() = _binding!!
 
     override fun onCreateView(
@@ -22,17 +28,31 @@ class HomeFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val homeViewModel =
-            ViewModelProvider(this).get(HomeViewModel::class.java)
-
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
-        val root: View = binding.root
+        return binding.root
+    }
 
-        val textView: TextView = binding.textHome
-        homeViewModel.text.observe(viewLifecycleOwner) {
-            textView.text = it
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        homeViewModel.getSymbols(API_KEY)
+        listenToSymbolsStateFlow()
+
+    }
+
+    private fun listenToSymbolsStateFlow() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                homeViewModel.symbolsStateFlow.collect { result ->
+                    when (result) {
+                        is ResultState.Success -> {}
+                        is ResultState.Fail -> {}
+                        is ResultState.Loading -> {}
+                    }
+                }
+
+            }
         }
-        return root
     }
 
     override fun onDestroyView() {
