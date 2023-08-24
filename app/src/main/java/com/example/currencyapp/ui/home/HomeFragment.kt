@@ -4,6 +4,9 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
+import android.widget.Toast
+import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -30,7 +33,7 @@ class HomeFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentHomeBinding.inflate(inflater, container, false)
+        _binding = FragmentHomeBinding.inflate(layoutInflater)
         return binding.root
     }
 
@@ -39,6 +42,8 @@ class HomeFragment : Fragment() {
 
         homeViewModel.getSymbols(API_KEY)
         listenToSymbolsStateFlow()
+        setupSwapButton()
+        setListenerToAmountInputText()
 
     }
 
@@ -47,15 +52,97 @@ class HomeFragment : Fragment() {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 homeViewModel.symbolsStateFlow.collect { result ->
                     when (result) {
-                        is ResultState.Success -> {}
-                        is ResultState.Fail -> {}
-                        is ResultState.Loading -> {}
+                        is ResultState.Success -> {
+                            hideProgressBar()
+                            showAllFields()
+                            setupSpinnerFrom(result.data.symbols.keys.toList())
+                            setupSpinnerTo(result.data.symbols.keys.toList())
+                        }
+                        is ResultState.Fail -> {
+                            hideAllFields()
+                            hideProgressBar()
+
+                            binding.tvMessage.visibility = View.VISIBLE
+                            binding.tvMessage.text = result.message
+                        }
+                        is ResultState.Loading -> {
+                            hideAllFields()
+                            showProgressBar()
+                        }
                     }
                 }
 
             }
         }
     }
+
+    private fun showProgressBar() {
+        binding.progressBar.visibility = View.VISIBLE
+    }
+
+    private fun hideProgressBar() {
+        binding.progressBar.visibility = View.GONE
+    }
+
+    private fun showAllFields() {
+        binding.apply {
+            spFrom.visibility = View.VISIBLE
+            spTo.visibility = View.VISIBLE
+            btnDetails.visibility = View.VISIBLE
+            etAmount.visibility = View.VISIBLE
+            etValue.visibility = View.VISIBLE
+            btnSwap.visibility = View.VISIBLE
+        }
+    }
+
+    private fun hideAllFields() {
+        binding.apply {
+            spFrom.visibility = View.GONE
+            spTo.visibility = View.GONE
+            btnDetails.visibility = View.GONE
+            btnSwap.visibility = View.GONE
+            etAmount.visibility = View.GONE
+            etValue.visibility = View.GONE
+        }
+    }
+
+
+    private fun setupSpinnerFrom(spinnerList: List<String>) {
+
+        binding.spFrom.apply {
+            adapter =
+                ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, spinnerList)
+        }
+
+    }
+
+    private fun setupSpinnerTo(spinnerList: List<String>) {
+        binding.spTo.apply {
+            adapter =
+                ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, spinnerList)
+        }
+    }
+
+    private fun setupSwapButton() {
+        binding.btnSwap.setOnClickListener {
+            var spFromPosition = binding.spFrom.selectedItemPosition
+            binding.spFrom.setSelection(binding.spTo.selectedItemPosition)
+            binding.spTo.setSelection(spFromPosition)
+        }
+    }
+
+    private fun setListenerToAmountInputText() {
+        binding.etAmount.addTextChangedListener {
+                if (it.isNullOrEmpty()&&it.toString()!="") {
+                    homeViewModel.convert(
+                        binding.spFrom.selectedItem.toString(),
+                        binding.spTo.selectedItem.toString(),
+                        it.toString().toDouble()
+                    )
+            }
+        }
+    }
+
 
     override fun onDestroyView() {
         super.onDestroyView()
