@@ -3,6 +3,7 @@ package com.example.currencyapp.data.repository
 import com.example.currencyapp.data.remote.CurrencyApi
 import com.example.currencyapp.domain.pojo.SymbolsResponse
 import com.example.currencyapp.domain.repository.MainRepository
+import com.example.currencyapp.utils.Constants.API_KEY
 import com.example.currencyapp.utils.Resource
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -29,6 +30,10 @@ class MainRepositoryImpl @Inject constructor(val api: CurrencyApi) : MainReposit
         } catch (e: IOException) {
             emit(Resource.Fail("Couldn't reach server. check your internet connection"))
         }
+    }
+
+    override suspend fun convert(from: String, to: String, amount: Double) {
+        api.convertCurrency(API_KEY,from, to, amount)
     }
 
 }

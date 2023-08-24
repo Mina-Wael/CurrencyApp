@@ -8,5 +8,6 @@ import kotlinx.coroutines.flow.Flow
 interface MainRepository {
 
     fun getSymbols(accessKey: String): Flow<Resource<SymbolsResponse>>
+    suspend fun convert(from:String,to:String,amount:Double)
 
 }
